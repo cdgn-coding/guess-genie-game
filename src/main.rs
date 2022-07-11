@@ -51,8 +51,8 @@ fn sorted_characteristics(variance_map: &HashMap<String, f64>) -> Vec<String> {
         characteristics.push(characteristic.to_string());
     }
 
-    characteristics.sort_by_key(|i| {
-        *variance_map.get(i).unwrap() as i64
+    characteristics.sort_by(|a, b| {
+        variance_map.get(a).unwrap().partial_cmp(variance_map.get(b).unwrap()).unwrap()
     });
 
     characteristics.reverse();
@@ -104,6 +104,10 @@ fn build_decision_tree(animals: &Vec<Animal>) -> DesicionTreeNode {
     let variance_map = compute_variance(animals);
     let sorted_characteristics = sorted_characteristics(variance_map.borrow());
     let node_characteristic = sorted_characteristics[0].to_string();
+
+    println!("{:?}", variance_map);
+    println!("{:?}", sorted_characteristics);
+    println!("Mayor varianza es de {} por {}", node_characteristic, variance_map.get(&node_characteristic).unwrap());
     
     let mut with_characteristic = animals.to_vec();
     with_characteristic.retain(|animal| animal.characteristics.contains(&node_characteristic));
@@ -193,4 +197,3 @@ fn main() {
         }
     }
 }
-

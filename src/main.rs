@@ -1,7 +1,8 @@
-use std::{vec::Vec, collections::HashMap, borrow::Borrow, io::{stdin, stdout, Write}};
+use std::{vec::Vec, collections::HashMap, borrow::Borrow, io::{stdin, stdout, Write, Read}, fs::File};
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct Animal {
     name: String,
     characteristics: Vec<String>
@@ -60,42 +61,19 @@ fn sorted_characteristics(variance_map: &HashMap<String, f64>) -> Vec<String> {
     return characteristics;
 }
 
+fn save_animals(animals: &Vec<Animal>) {
+    let mut file = File::create("animals.json").unwrap();
+    let animals_json = serde_json::to_string(&animals).unwrap();
+    file.write_all(animals_json.as_bytes()).unwrap();
+}
+
 // Returns all known observations. It is a sparse matrix
 fn get_animals() -> Vec<Animal> {
-    return vec![
-        Animal {
-            name: "Gato".to_string(),
-            characteristics: Vec::from(["Es una mascota".to_string(), "Ronronea".to_string()])
-        },
-        Animal {
-            name: "Perro".to_string(),
-            characteristics: vec!["Es una mascota".to_string(), "Ladra".to_string()]
-        },
-        Animal {
-            name: "León".to_string(),
-            characteristics: vec!["Es un animal salvaje".to_string(), "Ruge".to_string(), "Tiene melenena".to_string()]
-        },
-        Animal {
-            name: "Tigre".to_string(),
-            characteristics: vec!["Es un animal salvaje".to_string(), "Ruge".to_string(), "Tiene manchas".to_string()]
-        },
-        Animal {
-            name: "Oso".to_string(),
-            characteristics: vec!["Es un animal salvaje".to_string(), "Ruge".to_string(), "Es muy peludo".to_string()]
-        },
-        Animal {
-            name: "Oveja".to_string(),
-            characteristics: vec!["Tiene lana".to_string()]
-        },
-        Animal {
-            name: "Tortuga".to_string(),
-            characteristics: vec!["Tiene caparazon".to_string(), "Pone huevos".to_string(), "Es lento".to_string()]
-        },
-        Animal {
-            name: "Caballo".to_string(),
-            characteristics: vec!["Es muy veloz".to_string(), "Relincha".to_string(), "Es muy fuerte".to_string()]
-        }
-    ];
+    let mut file = File::open("animals.json").unwrap();
+    let mut animals_json = String::new();
+    file.read_to_string(&mut animals_json).unwrap();
+    let animals: Vec<Animal> = serde_json::from_str(&animals_json).unwrap();
+    return animals;
 }
 
 fn build_decision_tree(animals: &Vec<Animal>) -> DesicionTreeNode {
@@ -229,6 +207,8 @@ fn meet_animal_with_given_characteristics(animals: &mut Vec<Animal>, characteris
     };
 
     animals.push(new_animal);
+
+    save_animals(&animals);
 }
 
 fn meet_animal_with_new_characteristic(animals: &mut Vec<Animal>, characteristics: &mut Vec<String>, guessed_animal: &String) {
@@ -247,6 +227,8 @@ fn meet_animal_with_new_characteristic(animals: &mut Vec<Animal>, characteristic
     };
 
     animals.push(new_animal);
+
+    save_animals(&animals);
 }
 
 fn main() {
@@ -256,9 +238,10 @@ fn main() {
     let mut characteristics: Vec<String>;
 
     println!("Genio: Soy un programa genio...");
-    println!("Genio: Piensa en un animal y lo adivinaré.");
 
     loop {
+        println!("Genio: Piensa en un animal y lo adivinaré.");
+
         decision_tree = build_decision_tree(animals.borrow());
         (guess, characteristics) = traverse_decision_tree(decision_tree);
         
@@ -293,4 +276,6 @@ fn main() {
             _ => {}
         }
     }
+
+    println!("Genio: Hasta luego, humano.");
 }

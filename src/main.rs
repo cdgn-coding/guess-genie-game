@@ -220,6 +220,35 @@ fn meet_new_characteristic(guessed_animal: &String, true_animal: &String) -> Str
     return input_string.trim().to_string();
 }
 
+fn meet_animal_with_given_characteristics(animals: &mut Vec<Animal>, characteristics: Vec<String>) {
+    let new_animal_name = meet_new_animal();
+
+    let new_animal = Animal {
+        name: new_animal_name,
+        characteristics: characteristics,
+    };
+
+    animals.push(new_animal);
+}
+
+fn meet_animal_with_new_characteristic(animals: &mut Vec<Animal>, characteristics: &mut Vec<String>, guessed_animal: &String) {
+    let new_animal_name = meet_new_animal();
+
+    let new_animal_characteristic = meet_new_characteristic(
+        guessed_animal.borrow(),
+        new_animal_name.borrow()
+    );
+    
+    characteristics.push(new_animal_characteristic);
+
+    let new_animal = Animal {
+        name: new_animal_name,
+        characteristics: characteristics.to_vec(),
+    };
+
+    animals.push(new_animal);
+}
+
 fn main() {
     let mut animals = get_animals();
     let mut decision_tree: DesicionTreeNode;
@@ -235,15 +264,7 @@ fn main() {
         
         if guess.is_none()  {
             println!("Genio: No conozco ese animal...");
-            let new_animal_name = meet_new_animal();
-
-            let new_animal = Animal {
-                name: new_animal_name,
-                characteristics: characteristics,
-            };
-
-            animals.push(new_animal);
-
+            meet_animal_with_given_characteristics(&mut animals, characteristics);
             println!("Genio: Lo recordaré.");
         } else {
             let guessed_animal = guess.unwrap();
@@ -252,28 +273,17 @@ fn main() {
 
             if !is_correct {
                 println!("Genio: No conozco ese animal...");
-                let new_animal_name = meet_new_animal();
-
-                let new_animal_characteristic = meet_new_characteristic(
-                    guessed_animal.borrow(),
-                    new_animal_name.borrow()
+                meet_animal_with_new_characteristic(
+                    &mut animals,
+                    &mut characteristics,
+                    &guessed_animal,
                 );
-                
-                characteristics.push(new_animal_characteristic);
-
-                let new_animal = Animal {
-                    name: new_animal_name,
-                    characteristics: characteristics,
-                };
-
-                animals.push(new_animal);
 
                 println!("Genio: Lo recordaré.");
             } else {
                 println!("Genio: ¡Bien! Lo sabía.");
             }
         }
-
 
         println!("Genio: ¿Quieres seguir jugando? [Sí/No]");
         let should_continue = read_bool_command_line();

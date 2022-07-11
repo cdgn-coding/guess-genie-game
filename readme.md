@@ -5,7 +5,8 @@ Tú, el humano, debes pensar en un animal y el genio hará sucesivas preguntas h
 Puede suceder que el genio no conozca el animal, en ese caso, podrás enseñarle el nombre y el genio recordará
 ese animal en futuros juegos. En el siguiente video se ve la demostración:
 
-<video src='demo.mp4' width=600/>
+
+![](demo.mp4)
 
 Este juego se inspira en el (guessing game)[https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html] de la página oficial de Rust, en el cual el usuario debe adivinar una cadena de caracteres, así como también en el famoso juego *Akinator*, que utiliza un mecanismo muy similar al que se desarrolla en este repositorio.
 

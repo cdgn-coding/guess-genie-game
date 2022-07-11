@@ -7,6 +7,8 @@ ese animal en futuros juegos. En el siguiente video se ve la demostración:
 
 <video src='demo.mp4' width=600/>
 
+Este juego se inspira en el (guessing game)[https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html] de la página oficial de Rust, en el cual el usuario debe adivinar una cadena de caracteres, así como también en el famoso juego *Akinator*, que utiliza un mecanismo muy similar al que se desarrolla en este repositorio.
+
 ## Funcionamiento
 
 El juego está programado mediante el algoritmo de árbol de desición. La entrada de este algoritmo

@@ -28,7 +28,7 @@ Todos los nodos internos representan una pregunta respecto de una característic
 
 Para desarrollar este arbol, se seleccionan características que tengan mayor varianza estadística de forma sucesiva para decidir qué preguntas hacer. Esto permite que el genio haga la menor cantidad de preguntas al jugador. Dado que las características son variables aleatorias booleanas, se utilizó la distribución de Bernouilli como referencia.
 
-En consecuencia, para una característica cualquiera, la varianza se calcula como `n * p * (1 - p)`. Donde `p` es la probabilidad de que un animal tenga la característica en los datos de entrada. Cuando ya no quedan más características para desambiguar, se crea un nodo hoja con el animal que quede.
+En consecuencia, para una característica cualquiera, la varianza se calcula como `n * p * (1 - p)`. Donde `p` es la probabilidad de que un animal tenga la característica. Cuando ya no quedan más características para desambiguar, se crea un nodo hoja con el animal que quede (se van descartando).
 
 ## License
 

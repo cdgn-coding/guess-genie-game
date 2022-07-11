@@ -1,4 +1,4 @@
-use std::{vec::Vec, collections::HashMap, borrow::Borrow, io::stdin};
+use std::{vec::Vec, collections::HashMap, borrow::Borrow, io::{stdin, stdout, Write}};
 use regex::Regex;
 
 #[derive(Debug, Clone)]
@@ -78,6 +78,22 @@ fn get_animals() -> Vec<Animal> {
         Animal {
             name: "Tigre".to_string(),
             characteristics: vec!["Es un animal salvaje".to_string(), "Ruge".to_string(), "Tiene manchas".to_string()]
+        },
+        Animal {
+            name: "Oso".to_string(),
+            characteristics: vec!["Es un animal salvaje".to_string(), "Ruge".to_string(), "Es muy peludo".to_string()]
+        },
+        Animal {
+            name: "Oveja".to_string(),
+            characteristics: vec!["Tiene lana".to_string()]
+        },
+        Animal {
+            name: "Tortuga".to_string(),
+            characteristics: vec!["Tiene caparazon".to_string(), "Pone huevos".to_string(), "Es lento".to_string()]
+        },
+        Animal {
+            name: "Caballo".to_string(),
+            characteristics: vec!["Es muy veloz".to_string(), "Relincha".to_string(), "Es muy fuerte".to_string()]
         }
     ];
 }
@@ -105,10 +121,6 @@ fn build_decision_tree(animals: &Vec<Animal>) -> DesicionTreeNode {
     let sorted_characteristics = sorted_characteristics(variance_map.borrow());
     let node_characteristic = sorted_characteristics[0].to_string();
 
-    println!("{:?}", variance_map);
-    println!("{:?}", sorted_characteristics);
-    println!("Mayor varianza es de {} por {}", node_characteristic, variance_map.get(&node_characteristic).unwrap());
-    
     let mut with_characteristic = animals.to_vec();
     with_characteristic.retain(|animal| animal.characteristics.contains(&node_characteristic));
 
@@ -129,6 +141,8 @@ fn read_bool_command_line() -> bool {
     let no_re = Regex::new(r"no|NO|No|n").unwrap();
 
     loop {
+        print!("Tú: ");
+        stdout().flush().unwrap();
         stdin().read_line(&mut input_string)
             .ok()
             .expect("No se pudo leer correctamente.");
@@ -141,54 +155,127 @@ fn read_bool_command_line() -> bool {
             return false
         }
 
-        println!("No entendí correctamente. Intenta escribiendo si o no.");
+        println!("Genio: No entendí correctamente. Intenta escribiendo si o no.");
     }
 }
 
-fn traverse_decision_tree(tree: DesicionTreeNode) -> Option<String> {
+fn traverse_decision_tree(tree: DesicionTreeNode) -> (Option<String>, Vec<String>) {
     let mut head = tree;
+    let mut characteristics: Vec<String> = Vec::new();
+
     loop {
         let answer = head.answer;
         let characteristic = head.characteristic;
         let yes_branch = head.yes_branch;
         let no_branch = head.no_branch;
+        let characteristic_string: String;
         
         if answer.is_some() {
-            return Some(answer.unwrap());
+            return (Some(answer.unwrap()), characteristics);
         }
 
         if characteristic.is_none() {
-            return None
+            return (None, characteristics);
         }
 
-        println!("¿El animal... {}? [Sí/No]", characteristic.unwrap());
+        characteristic_string = characteristic.unwrap();
+
+        println!("Genio: ¿El animal... {}? [Sí/No]", characteristic_string);
         let has_characteristic = read_bool_command_line();
 
         // Walks yes branch
         match has_characteristic {
-            true => head = *yes_branch.unwrap(),
+            true => {
+                head = *yes_branch.unwrap();
+                characteristics.push(characteristic_string);
+            },
             false => head = *no_branch.unwrap(),
         }
     }
 }
 
+fn meet_new_animal() -> String {
+    println!("Genio: ¿Qué animal es?");
+    let mut input_string = String::new();
+
+    print!("Tú: ");
+    stdout().flush().unwrap();
+    stdin().read_line(&mut input_string)
+        .ok()
+        .expect("No se pudo leer correctamente.");
+
+    return input_string.trim().to_string();
+}
+
+fn meet_new_characteristic(guessed_animal: &String, true_animal: &String) -> String {
+    println!("Genio: ¿Qué característica tiene {}, que lo diferencie de {}?", true_animal, guessed_animal);
+    let mut input_string = String::new();
+
+    print!("Tú: ");
+    stdout().flush().unwrap();
+    stdin().read_line(&mut input_string)
+        .ok()
+        .expect("No se pudo leer correctamente.");
+
+    return input_string.trim().to_string();
+}
+
 fn main() {
-    let animals = get_animals();
+    let mut animals = get_animals();
     let mut decision_tree: DesicionTreeNode;
     let mut guess: Option<String>;
+    let mut characteristics: Vec<String>;
+
+    println!("Genio: Soy un programa genio...");
+    println!("Genio: Piensa en un animal y lo adivinaré.");
 
     loop {
         decision_tree = build_decision_tree(animals.borrow());
-        guess = traverse_decision_tree(decision_tree);
+        (guess, characteristics) = traverse_decision_tree(decision_tree);
         
         if guess.is_none()  {
-            println!("No conozco ese animal...");
+            println!("Genio: No conozco ese animal...");
+            let new_animal_name = meet_new_animal();
+
+            let new_animal = Animal {
+                name: new_animal_name,
+                characteristics: characteristics,
+            };
+
+            animals.push(new_animal);
+
+            println!("Genio: Lo recordaré.");
         } else {
-            println!("Tu animal es... {}", guess.unwrap());
+            let guessed_animal = guess.unwrap();
+            println!("Genio: ¿Tu animal es... {}? [Sí/No]", guessed_animal);
+            let is_correct = read_bool_command_line();
+
+            if !is_correct {
+                println!("Genio: No conozco ese animal...");
+                let new_animal_name = meet_new_animal();
+
+                let new_animal_characteristic = meet_new_characteristic(
+                    guessed_animal.borrow(),
+                    new_animal_name.borrow()
+                );
+                
+                characteristics.push(new_animal_characteristic);
+
+                let new_animal = Animal {
+                    name: new_animal_name,
+                    characteristics: characteristics,
+                };
+
+                animals.push(new_animal);
+
+                println!("Genio: Lo recordaré.");
+            } else {
+                println!("Genio: ¡Bien! Lo sabía.");
+            }
         }
 
 
-        println!("¿Quieres seguir jugando? [Sí/No]");
+        println!("Genio: ¿Quieres seguir jugando? [Sí/No]");
         let should_continue = read_bool_command_line();
 
         match should_continue {
